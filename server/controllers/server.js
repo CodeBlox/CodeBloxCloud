@@ -1,6 +1,7 @@
 var cmd = require('node-cmd');
 var randomstring = require("randomstring");
 var ncp = require('ncp').ncp;
+var freeport = require('freeport');
 
 var config = require('../config/config');
 
@@ -14,8 +15,14 @@ module.exports.run = function(req, res, next) {
             return console.error(err);
         }
     
-        console.log('done copying!');
-        var command = 'pm2 start "' + config.codeBloxDir + 'Servers\\' + req.params.project + '-' + uid + '\\app.js" --name "' + req.params.project + '-' + uid + '"';
-        cmd.run(command);
+        console.log('Done copying ' + req.params.project + '-' + uid);
+        console.log('Search available port...');
+        freeport(function(err, port) {
+            if (err) throw err
+            
+            console.log('Start server on port ' + port);
+            var command = 'pm2 start "' + config.codeBloxDir + 'Servers\\' + req.params.project + '-' + uid + '\\app.js" --name "' + req.params.project + '-' + uid + '" -- ' + port;
+            cmd.run(command);
+        });
     });
 };
