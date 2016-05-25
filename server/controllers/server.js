@@ -23,6 +23,7 @@ module.exports.run = function(req, res, next) {
             
             console.log('Start server on port ' + port);
             var command = 'pm2 start "' + config.codeBloxDir + 'Servers/' + req.params.project + '-' + uid + '/app.js" --name "' + req.params.project + '-' + uid + '" -- ' + port;
+            console.log(command);
             cmd.run(command);
             
             res.json({
