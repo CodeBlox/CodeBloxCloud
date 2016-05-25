@@ -26,7 +26,8 @@ module.exports.run = function(req, res, next) {
             cmd.run(command);
             
             res.json({
-                url: ip.address() + ":" + port
+                url: ip.address() + ":" + port,
+                name:  req.params.project + '-' + uid
             });
         });
     });
