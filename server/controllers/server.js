@@ -9,8 +9,8 @@ var config = require('../config/config');
 module.exports.run = function(req, res, next) {
     var uid = randomstring.generate(5);
     
-    ncp(config.codeBloxDir + 'Projects\\' + req.params.project,
-        config.codeBloxDir + 'Servers\\' + req.params.project + '-' + uid,
+    ncp(config.codeBloxDir + 'Projects/' + req.params.project,
+        config.codeBloxDir + 'Servers/' + req.params.project + '-' + uid,
         function (err) {
         if (err) {
             return console.error(err);
@@ -22,7 +22,7 @@ module.exports.run = function(req, res, next) {
             if (err) throw err
             
             console.log('Start server on port ' + port);
-            var command = 'pm2 start "' + config.codeBloxDir + 'Servers\\' + req.params.project + '-' + uid + '\\app.js" --name "' + req.params.project + '-' + uid + '" -- ' + port;
+            var command = 'pm2 start "' + config.codeBloxDir + 'Servers/' + req.params.project + '-' + uid + '/app.js" --name "' + req.params.project + '-' + uid + '" -- ' + port;
             cmd.run(command);
             
             res.json({

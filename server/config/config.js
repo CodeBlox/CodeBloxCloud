@@ -1,3 +1,3 @@
 var appRoot = require('app-root-path');
 
-module.exports.codeBloxDir = appRoot + "\\CodeBlox\\";
+module.exports.codeBloxDir = appRoot + "/CodeBlox/";
