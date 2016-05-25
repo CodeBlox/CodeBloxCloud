@@ -16,7 +16,9 @@ module.exports.run = function(req, res, next) {
         }
     
         console.log('Done copying ' + req.params.project + '-' + uid);
+        
         console.log('Search available port...');
+        
         freeport(function(err, port) {
             if (err) throw err
             console.log('Start server on port ' + port);
@@ -57,7 +59,7 @@ module.exports.getServersStatus = function(req, res, next) {
             
             for (var i = 0; i < process_list.length; i++) {
                 retJson.push({
-                    pm_id: process_list[i].pm_id
+                    pm_id: process_list[i].pm_id,
                     name: process_list[i].name,
                     status: process_list[i].pm2_env.status
                 });
