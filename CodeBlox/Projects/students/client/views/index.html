@@ -3,17 +3,22 @@
 <body>
 
 <div ng-controller="homeCtrl">
- 	<ul>
+ 	<!-- {CodeBlox+ShowStudents} -->
+     <ul>
         <li ng-repeat="stud in students">
             {{stud.name}}
         </li>  
     </ul>
     <br><br>
+    <!-- {CodeBlox-ShowStudents} -->
+    <!-- {CodeBlox+AddStudent} -->
     Name: <input type="text" ng-model="stud.name"><br>
     <button ng-click="addStud()">Add Student</button>
+    <!-- {CodeBlox-AddStudent} -->
 </div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<!-- {CodeBlox+AngularSide} -->
 <script>
     var app = angular.module('StudentsApp',[]);
     
@@ -46,6 +51,6 @@
         };
     });
 </script>
-
+<!-- {CodeBlox-AngularSide} -->
 </body>
 </html>
