@@ -2,6 +2,7 @@ var randomstring = require("randomstring");
 var ncp = require('ncp').ncp;
 var freeport = require('freeport');
 var pm2 = require('pm2');
+var cmd = require('node-cmd');
 
 var config = require('../config/config');
 
@@ -17,36 +18,45 @@ module.exports.run = function(req, res, next) {
     
         console.log('Done copying ' + req.params.project + '-' + uid);
         
-        console.log('Search available port...');
+        console.log('Do npm install');
         
-        freeport(function(err, port) {
-            if (err) throw err
-            console.log('Start server on port ' + port);
-            pm2.connect(function(err) {
-                if (err) {
-                    console.error(err);
-                    process.exit(2);
-                }
+        cmd.get(
+            'npm install --prefix "' + config.codeBloxDir + 'Servers/' + req.params.project + '-' + uid + '"',
+            function(data){
+                console.log('Finish npm install');
+                
+                console.log('Search available port...');
+        
+                freeport(function(err, port) {
+                    if (err) throw err
+                    console.log('Start server on port ' + port);
+                    pm2.connect(function(err) {
+                        if (err) {
+                            console.error(err);
+                            process.exit(2);
+                        }
 
-                pm2.start({
-                    script: config.codeBloxDir + 'Servers/' + req.params.project + '-' + uid + '/app.js',
-                    args: [port],
-                    name: req.params.project + '-' + uid,
-                    max_memory_restart : '100M'
-                    }, function(err, apps) {
-                        console.log('Server started!');
+                        pm2.start({
+                            script: config.codeBloxDir + 'Servers/' + req.params.project + '-' + uid + '/app.js',
+                            args: [port],
+                            name: req.params.project + '-' + uid,
+                            max_memory_restart : '100M'
+                            }, function(err, apps) {
+                                console.log('Server started!');
 
-                        res.json({
-                            port: port,
-                            name:  req.params.project + '-' + uid
+                                res.json({
+                                    port: port,
+                                    name:  req.params.project + '-' + uid
+                                });
+                                
+                                // Disconnect from PM2
+                                pm2.disconnect();   
+                                if (err) throw err
                         });
-                        
-                        // Disconnect from PM2
-                        pm2.disconnect();   
-                        if (err) throw err
+                    });
                 });
-            });
-        });
+            }
+        );
     });
 };
 
