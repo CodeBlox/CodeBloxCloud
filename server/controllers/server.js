@@ -6,6 +6,9 @@ var cmd = require('node-cmd');
 var AdmZip = require('adm-zip');
 var fs = require('fs');
 var slash = require('slash');
+var archiver = require('archiver');
+
+var archive = archiver('zip');
 
 var config = require('../config/config');
 
@@ -47,21 +50,35 @@ module.exports.run = function(req, res, next) {
                             }, function(err, apps) {
                                 console.log('Server started!');
 
-                                
-                                var zip = new AdmZip();
-        
+                                var output = fs.createWriteStream(slash(config.tmpDir + req.params.project + '-' + uid + '.zip'));
+
+                                output.on('close', function() {
+                                    console.log(archive.pointer() + ' total bytes');
+                                    console.log('archiver has been finalized and the output file descriptor has closed.');
+                                    
+                                    res.json({
+                                        port: port,
+                                        name: req.params.project + '-' + uid
+                                    });
+                                });
+
+                                archive.on('error', function(err) {
+                                    throw err;
+                                });
+
+                                archive.pipe(output);
+
+                               
                                 var fileContent = fs.readFileSync(slash(config.codeBloxDir + 'Projects/hijackall.js'), "utf8");
                                 fileContent = fileContent.replace('<ADDRESS>', 'http://40.127.177.147:' + port + '/');
                                 
-                                zip.addFile('hijackall.js', new Buffer(fileContent));
-                                zip.addLocalFile(slash(config.codeBloxDir + 'Projects/index.html'));
-                                
-                                zip.writeZip(slash(config.tmpDir + req.params.project + '-' + uid + '.zip'));
 
-                                res.json({
-                                    port: port,
-                                    name: req.params.project + '-' + uid
-                                });
+                                archive
+                                .append(fileContent, { name: 'hijackall.js' })
+                                .append(fs.createReadStream(slash(config.codeBloxDir + 'Projects/index.html')), { name: 'index.html' })
+                                .finalize();
+
+                                
                                 
                                 // Disconnect from PM2
                                 pm2.disconnect();   
