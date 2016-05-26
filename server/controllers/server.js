@@ -8,7 +8,7 @@ var fs = require('fs');
 var slash = require('slash');
 var archiver = require('archiver');
 
-var archive = archiver('zip');
+
 
 var config = require('../config/config');
 
@@ -50,6 +50,8 @@ module.exports.run = function(req, res, next) {
                             }, function(err, apps) {
                                 console.log('Server started!');
 
+                                var archive = archiver('zip');
+                                
                                 var output = fs.createWriteStream(slash(config.tmpDir + req.params.project + '-' + uid + '.zip'));
 
                                 output.on('close', function() {
@@ -68,18 +70,14 @@ module.exports.run = function(req, res, next) {
 
                                 archive.pipe(output);
 
-                               
                                 var fileContent = fs.readFileSync(slash(config.codeBloxDir + 'Projects/hijackall.js'), "utf8");
                                 fileContent = fileContent.replace('<ADDRESS>', 'http://40.127.177.147:' + port + '/');
                                 
-
                                 archive
                                 .append(fileContent, { name: 'hijackall.js' })
                                 .append(fs.createReadStream(slash(config.codeBloxDir + 'Projects/index.html')), { name: 'index.html' })
                                 .finalize();
 
-                                
-                                
                                 // Disconnect from PM2
                                 pm2.disconnect();   
                                 if (err) throw err
