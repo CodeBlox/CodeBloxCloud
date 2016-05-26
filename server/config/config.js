@@ -1,3 +1,5 @@
 var appRoot = require('app-root-path');
+var slash = require('slash');
 
-module.exports.codeBloxDir = appRoot + "/CodeBlox/";
+module.exports.codeBloxDir = slash(appRoot + "/CodeBlox/");
+module.exports.tmpDir = slash(appRoot + "/tmp/");

@@ -3,6 +3,9 @@ var ncp = require('ncp').ncp;
 var freeport = require('freeport');
 var pm2 = require('pm2');
 var cmd = require('node-cmd');
+var AdmZip = require('adm-zip');
+var fs = require('fs');
+var slash = require('slash');
 
 var config = require('../config/config');
 
@@ -44,9 +47,20 @@ module.exports.run = function(req, res, next) {
                             }, function(err, apps) {
                                 console.log('Server started!');
 
+                                
+                                var zip = new AdmZip();
+        
+                                var fileContent = fs.readFileSync(slash(config.codeBloxDir + 'Projects/hijackall.js'), "utf8");
+                                fileContent = fileContent.replace('<ADDRESS>', 'http://40.127.177.147:' + port + '/');
+                                
+                                zip.addFile('hijackall.js', new Buffer(fileContent));
+                                zip.addLocalFile(slash(config.codeBloxDir + 'Projects/index.html'));
+                                
+                                zip.writeZip(slash(config.tmpDir + req.params.project + '-' + uid + '.zip'));
+
                                 res.json({
                                     port: port,
-                                    name:  req.params.project + '-' + uid
+                                    name: req.params.project + '-' + uid
                                 });
                                 
                                 // Disconnect from PM2
